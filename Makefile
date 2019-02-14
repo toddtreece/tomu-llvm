@@ -16,6 +16,7 @@ LD = $(PREFIX)ld.lld
 SIZE = $(PREFIX)llvm-size
 COPY = $(PREFIX)llvm-objcopy
 DUMP = $(PREFIX)llvm-objdump
+CP = cp -a
 
 TARGET:=$(OUT)/$(PRJ).elf
 TARGET_LST:=$(OUT)/$(PRJ).lst
@@ -63,9 +64,9 @@ $(TARGET_BIN): $(TARGET)
 	@echo COPY to $@
 	$(Q)$(COPY) -O binary $< $@
 
-$(TARGET_DFU): $(TARGET)
+$(TARGET_DFU): $(TARGET_BIN)
 	@echo DFU to $@
-	$(Q)$(COPY) $(TARGET) $@
+	$(Q)$(CP) $(TARGET_BIN) $@
 	$(Q)dfu-suffix -v 1209 -p 70b1 -a $@
 
 size: $(TARGET)
