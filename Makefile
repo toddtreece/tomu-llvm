@@ -10,6 +10,7 @@ Q         :=@
 OUT := out
 CSRC:= $(wildcard src/*.c)
 OBJ := $(addprefix $(OUT)/, $(CSRC:.c=.o))
+LLVM := $(addprefix $(OUT)/, $(CSRC:.c=.ll))
 
 CC = $(PREFIX)clang
 LD = $(PREFIX)ld.lld
@@ -45,12 +46,17 @@ LDFLAGS += --gc-sections
 LDFLAGS += --Map $(TARGET_MAP)
 LDFLAGS += --script $(LDSCRIPT)
 
-all: $(TARGET_BIN) $(TARGET_LST) $(TARGET_DFU) size
+all: $(LLVM) $(TARGET_BIN) $(TARGET_LST) $(TARGET_DFU) size
 
 $(OUT)/%.o: %.c
 	@echo CC $^
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -o $@ $(CFLAGS) -c $<
+
+$(OUT)/%.ll: %.c
+	@echo LL $^
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -S -emit-llvm -o $@ $(CFLAGS) -c $<
 
 $(TARGET): $(OBJ)
 	@echo LD $@
